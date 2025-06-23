@@ -4,4 +4,4 @@ joblib
 scikit-learn
 openpyxl
 matplotlib
-tensorflow==2.15.0
+tensorflow
