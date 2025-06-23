@@ -3,8 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-from tensorflow.keras.models import load_model as keras_load_model
-from my_layers import OnlineKalmanFilterLayer
+from tensorflow.keras.models import load_model
 
 # Sayfa yapılandırması
 st.set_page_config(page_title="GF Anomali Tespiti", layout="wide")
@@ -31,20 +30,19 @@ selected_features = [
 ]
 
 # Model yükleme
-
-
 @st.cache_resource
-def load_keras_model(path):
+def load_model(path):
     try:
-        model = keras_load_model(path, custom_objects={"OnlineKalmanFilterLayer": OnlineKalmanFilterLayer})
+        model = load_model("cnn_bigru_online_kalman.h5")
         return model
     except Exception as e:
         st.error(f"Model yüklenirken hata: {e}")
         return None
 
-model = load_keras_model(MODEL_PATH)
+model = load_model(MODEL_PATH)
 if model is None:
     st.stop()
+
 # Veri yükleme
 @st.cache_data
 def load_data(path):
