@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-from tensorflow.keras.models import load_model
+from tensorflow.keras.models import load_model as keras_load_model
 from my_layers import OnlineKalmanFilterLayer
 
 # Sayfa yapılandırması
@@ -31,19 +31,20 @@ selected_features = [
 ]
 
 # Model yükleme
+
+
 @st.cache_resource
-def load_model(path):
+def load_keras_model(path):
     try:
-        model = load_model("cnn_bigru_online_kalman.h5", custom_objects={"OnlineKalmanFilterLayer": OnlineKalmanFilterLayer})
+        model = keras_load_model(path, custom_objects={"OnlineKalmanFilterLayer": OnlineKalmanFilterLayer})
         return model
     except Exception as e:
         st.error(f"Model yüklenirken hata: {e}")
         return None
 
-model = load_model(MODEL_PATH)
+model = load_keras_model(MODEL_PATH)
 if model is None:
     st.stop()
-
 # Veri yükleme
 @st.cache_data
 def load_data(path):
