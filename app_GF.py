@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import joblib
 import matplotlib.pyplot as plt
 import time
 from tensorflow.keras.models import load_model
@@ -69,8 +68,12 @@ if st.button("🚀 Testi Başlat"):
 
     for i in range(len(df)):
         try:
-            row = df.iloc[i].values.reshape(1, len(selected_features), 1)  # Modelin giriş formatına göre ayarlayın
-            score = model.predict(row, verbose=0)[0]
+            # Ölçüm verisi (measurements)
+            measurements = df.iloc[i].values.reshape(1, len(selected_features))
+            # Örnek bir tahmin verisi (predictions) - modelinize göre ayarlayın
+            predictions = np.zeros_like(measurements)  # Basit bir sıfır tahmini
+            inputs = [measurements, predictions]
+            score = model.predict(inputs, verbose=0)[0]
             if isinstance(score, np.ndarray):
                 score = score.item()
         except Exception as e:
