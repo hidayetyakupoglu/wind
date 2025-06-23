@@ -33,8 +33,11 @@ selected_features = [
 @st.cache_resource
 def load_model(path):
     return joblib.load(path)
+from tensorflow.keras.models import load_model
+from my_layers import OnlineKalmanFilterLayer  # tanımlı katmanını import et
 
-model = load_model(MODEL_PATH)
+model = load_model("model_GF.h5", custom_objects={"OnlineKalmanFilterLayer": OnlineKalmanFilterLayer})
+
 
 # --- Veri yükleme ---
 @st.cache_data
