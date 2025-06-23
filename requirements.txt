@@ -4,4 +4,4 @@ joblib
 scikit-learn
 openpyxl
 matplotlib
-tensorflow
+tensorflow-cpu
