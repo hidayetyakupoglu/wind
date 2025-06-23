@@ -4,10 +4,12 @@ import numpy as np
 import joblib
 import matplotlib.pyplot as plt
 import time
+from tensorflow.keras.models import load_model
+from my_layers import OnlineKalmanFilterLayer
 
 # Sayfa yapılandırması
 st.set_page_config(page_title="GF Anomali Tespiti", layout="wide")
-st.title("🔌 Ground Fault (GF) Anomali Tespit Paneli")
+st.title("🔌 (GF) Anomali Tespit Paneli")
 
 # Model ve veri yolu
 MODEL_PATH = "cnn_bigru_online_kalman.h5"
@@ -29,23 +31,33 @@ selected_features = [
     'Rear bearing temp.'
 ]
 
-# --- Model yükleme ---
+# Model yükleme
 @st.cache_resource
 def load_model(path):
-    return joblib.load(path)
-from tensorflow.keras.models import load_model
-from my_layers import OnlineKalmanFilterLayer  # tanımlı katmanını import et
+    try:
+        model = load_model(path, custom_objects={"OnlineKalmanFilterLayer": OnlineKalmanFilterLayer})
+        return model
+    except Exception as e:
+        st.error(f"Model yüklenirken hata: {e}")
+        return None
 
-model = load_model("cnn_bigru_online_kalman.h5", custom_objects={"OnlineKalmanFilterLayer": OnlineKalmanFilterLayer})
+model = load_model(MODEL_PATH)
+if model is None:
+    st.stop()
 
-
-# --- Veri yükleme ---
+# Veri yükleme
 @st.cache_data
 def load_data(path):
-    df = pd.read_excel(path)
-    return df[selected_features]  # sadece ilgili sensörleri al
+    try:
+        df = pd.read_excel(path)
+        return df[selected_features]
+    except Exception as e:
+        st.error(f"Veri yüklenirken hata: {e}")
+        return None
 
 df = load_data(DATA_PATH)
+if df is None:
+    st.stop()
 
 # Eşik değeri seçimi
 threshold = st.slider("GF Anomali Eşik Değeri", min_value=0.0, max_value=1.0, value=0.05, step=0.001)
@@ -56,14 +68,14 @@ if st.button("🚀 Testi Başlat"):
     placeholder = st.empty()
 
     for i in range(len(df)):
-        row = df.iloc[i].values.reshape(1, -1)
+        row = df.iloc[i].values.reshape(1, len(selected_features), 1)  # Modelin giriş formatına göre ayarlayın
         try:
-            score = model.predict_proba(row)[0][1]  # varsa 2. sınıf olasılığı (anomalilik skoru)
-        except:
-            try:
-                score = model.decision_function(row)[0]  # bazı modellerde bu olur
-            except:
-                score = model.predict(row)[0]  # binary ise sadece predict kullanılır
+            score = model.predict(row, verbose=0)[0]
+            if isinstance(score, np.ndarray):
+                score = score.item()
+        except Exception as e:
+            st.error(f"Model tahmini sırasında hata: {e}")
+            score = 0.0
 
         score_history.append(score)
         status = "🟢 Normal" if score < threshold else "🔴 Anomali"
