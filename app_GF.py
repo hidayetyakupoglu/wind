@@ -68,10 +68,10 @@ if st.button("🚀 Testi Başlat"):
 
     for i in range(len(df)):
         try:
-            # Ölçüm verisi (measurements)
-            measurements = df.iloc[i].values.reshape(1, len(selected_features))
-            # Örnek bir tahmin verisi (predictions) - modelinize göre ayarlayın
-            predictions = np.zeros_like(measurements)  # Basit bir sıfır tahmini
+            # Ölçüm verisi
+            measurements = df.iloc[i].values.reshape(1, len(selected_features)).astype(np.float32)
+            # Tahmin verisi (örnek olarak sıfır vektörü, modelinize göre ayarlayın)
+            predictions = np.zeros_like(measurements).astype(np.float32)
             inputs = [measurements, predictions]
             score = model.predict(inputs, verbose=0)[0]
             if isinstance(score, np.ndarray):
