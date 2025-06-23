@@ -1,7 +1,7 @@
-streamlit
-pandas
-joblib
-scikit-learn
-openpyxl
-matplotlib
-tensorflow
+streamlit==1.38.0
+pandas==2.2.3
+joblib==1.4.2
+scikit-learn==1.5.2
+openpyxl==3.1.5
+matplotlib==3.9.2
+tensorflow==2.15.0
