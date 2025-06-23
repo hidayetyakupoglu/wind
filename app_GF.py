@@ -33,7 +33,7 @@ selected_features = [
 @st.cache_resource
 def load_model(path):
     try:
-        model = load_model("cnn_bigru_online_kalman.h5")
+        model = load_model(path)
         return model
     except Exception as e:
         st.error(f"Model yüklenirken hata: {e}")
