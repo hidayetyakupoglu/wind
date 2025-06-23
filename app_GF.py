@@ -36,7 +36,7 @@ def load_model(path):
 from tensorflow.keras.models import load_model
 from my_layers import OnlineKalmanFilterLayer  # tanımlı katmanını import et
 
-model = load_model("model_GF.h5", custom_objects={"OnlineKalmanFilterLayer": OnlineKalmanFilterLayer})
+model = load_model("cnn_bigru_online_kalman.h5", custom_objects={"OnlineKalmanFilterLayer": OnlineKalmanFilterLayer})
 
 
 # --- Veri yükleme ---
