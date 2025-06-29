@@ -39,6 +39,56 @@ def load_model(path):
         st.error(f"Model yüklenirken hata: {e}")
         return None
 '''
+class OnlineLearningKalmanFilterLayer(Layer):
+    def __init__(self, learning_rate=0.01, **kwargs):
+        super(OnlineLearningKalmanFilterLayer, self).__init__(**kwargs)
+        self.learning_rate = learning_rate
+
+    def build(self, input_shape):
+        feature_dim = input_shape[0][-1]
+
+        self.R = self.add_weight(name='R', shape=(feature_dim,), initializer='ones', trainable=True)
+        self.Q = self.add_weight(name='Q', shape=(feature_dim,), initializer='ones', trainable=True)
+
+        # Bu şekilde P'nin ilk değerini tf.Variable ile oluştur
+        self.P = self.add_weight(name='P', shape=(feature_dim,), initializer='ones', trainable=False)
+
+        # Optimizer
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
+
+    def call(self, inputs):
+        measurements, predictions = inputs
+
+        # Eğitim modunda online öğrenme
+        if tf.executing_eagerly():
+            with tf.GradientTape() as tape:
+                # Hata kovaryansını güncelle
+                P_pred = self.P + self.Q
+
+                # Kalman kazancını hesapla
+                K = P_pred / (P_pred + self.R + 1e-7)
+
+                # Filtrelenmiş tahmin
+                estimate = predictions + K * (measurements - predictions)
+
+                # Online loss hesapla (MAE)
+                loss = tf.reduce_mean(tf.abs(measurements - estimate))
+
+            # R ve Q için gradientleri al
+            grads = tape.gradient(loss, [self.R, self.Q])
+
+            # Gradientleri uygula
+            self.optimizer.apply_gradients(zip(grads, [self.R, self.Q]))
+
+            # Hata kovaryansını güncelle
+            self.P.assign((1 - K) * P_pred)
+        else:
+            # Sembolik hesaplama (model oluşturma aşaması)
+            P_pred = self.P + self.Q
+            K = P_pred / (P_pred + self.R + 1e-7)
+            estimate = predictions + K * (measurements - predictions)
+
+        return estimate
 from tensorflow.keras.models import load_model
 from tensorflow.keras.losses import MeanAbsoluteError
 
