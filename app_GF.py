@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import time
 from tensorflow.keras.models import load_model
 from tensorflow.keras.layers import Layer, Input, Conv1D, MaxPooling1D, concatenate, Bidirectional, GRU, TimeDistributed, Dense
+from tensorflow.keras.layers import Attention
 
 
 # Sayfa yapılandırması
