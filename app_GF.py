@@ -92,6 +92,32 @@ class OnlineLearningKalmanFilterLayer(Layer):
             estimate = predictions + K * (measurements - predictions)
 
         return estimate
+class AttentionLayer(Layer):
+    def __init__(self, **kwargs):
+        super(AttentionLayer, self).__init__(**kwargs)
+
+    def build(self, input_shape):
+        self.W = self.add_weight(name='W',
+                                 shape=(input_shape[-1], input_shape[-1]),
+                                 initializer='random_normal',
+                                 trainable=True)
+        self.b = self.add_weight(name='b',
+                                 shape=(input_shape[-1],),
+                                 initializer='zeros',
+                                 trainable=True)
+
+    def call(self, inputs):
+        # Dikkat puanlarını hesapla
+        score = tf.tanh(tf.tensordot(inputs, self.W, axes=[[2], [0]]) + self.b)
+        attention_weights = tf.nn.softmax(score, axis=1)
+        output = inputs * attention_weights
+
+        return output
+
+    def get_config(self):
+        config = super(AttentionLayer, self).get_config()
+        return config
+
 from tensorflow.keras.models import load_model
 from tensorflow.keras.losses import MeanAbsoluteError
 
