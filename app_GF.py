@@ -4,6 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 from tensorflow.keras.models import load_model
+from tensorflow.keras.layers import Layer, Input, Conv1D, MaxPooling1D, concatenate, Bidirectional, GRU, TimeDistributed, Dense
+
 
 # Sayfa yapılandırması
 st.set_page_config(page_title="GF Anomali Tespiti", layout="wide")
