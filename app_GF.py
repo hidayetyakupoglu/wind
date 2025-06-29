@@ -50,7 +50,7 @@ custom_objects = {
 }
 
 # Modeli yükleme
-model = load_model('kalman.h5', custom_objects=custom_objects)
+model = load_model('cnn_bigru_online_kalman.h5', custom_objects=custom_objects)
 # Veri yükleme
 @st.cache_data
 def load_data(path):
