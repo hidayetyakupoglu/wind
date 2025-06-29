@@ -28,7 +28,7 @@ selected_features = [
     'WEC: ava. Rotation',
     'Rear bearing temp.'
 ]
-
+'''
 # Model yükleme
 @st.cache_resource
 def load_model(path):
@@ -38,11 +38,19 @@ def load_model(path):
     except Exception as e:
         st.error(f"Model yüklenirken hata: {e}")
         return None
+'''
+from tensorflow.keras.models import load_model
+from tensorflow.keras.losses import MeanAbsoluteError
 
-model = load_model(MODEL_PATH)
-if model is None:
-    st.stop()
+# Özel katmanlar ve mae kaybı fonksiyonu için custom_objects
+custom_objects = {
+    'OnlineLearningKalmanFilterLayer': OnlineLearningKalmanFilterLayer,
+    'AttentionLayer': AttentionLayer,
+    'mae': MeanAbsoluteError()  # mae kaybı fonksiyonunu ekle
+}
 
+# Modeli yükleme
+model = load_model('kalman.h5', custom_objects=custom_objects)
 # Veri yükleme
 @st.cache_data
 def load_data(path):
